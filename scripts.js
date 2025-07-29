@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     // Load quotes dynamically when page loads
     loadQuotes();
 });
@@ -10,19 +10,19 @@ function loadQuotes() {
     // Show loader while fetching data
     const quotesCarousel = $('#carouselExampleControls .carousel-inner');
     quotesCarousel.html('<div class="carousel-item active d-flex justify-content-center align-items-center" style="min-height: 200px;"><div class="loader"></div></div>');
-    
+
     // Make Ajax request to fetch quotes
     $.ajax({
         url: 'https://smileschool-api.hbtn.info/quotes',
         method: 'GET',
         dataType: 'json',
-        success: function(data) {
+        success: function (data) {
             // Clear the loader
             quotesCarousel.empty();
-            
+
             // Populate carousel with quotes data
             if (data && data.length > 0) {
-                data.forEach(function(quote, index) {
+                data.forEach(function (quote, index) {
                     const isActive = index === 0 ? 'active' : '';
                     const carouselItem = `
                         <div class="carousel-item ${isActive}">
@@ -45,7 +45,7 @@ function loadQuotes() {
                     `;
                     quotesCarousel.append(carouselItem);
                 });
-                
+
                 // Reinitialize the carousel after adding content
                 $('#carouselExampleControls').carousel('dispose').carousel();
             } else {
@@ -61,7 +61,7 @@ function loadQuotes() {
                 `);
             }
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             // Handle error case
             console.error('Error loading quotes:', error);
             quotesCarousel.html(`
