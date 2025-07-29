@@ -5,8 +5,14 @@ $(document).ready(function () {
   // Load popular tutorials dynamically when page loads
   loadPopularTutorials();
 
+  // Load latest videos dynamically when page loads
+  loadLatestVideos();
+
   // Initialize custom carousel controls
   initializeCustomCarousel();
+
+  // Initialize latest videos carousel controls
+  initializeLatestVideosCarousel();
 });
 
 /**
@@ -336,9 +342,263 @@ function updateCarouselDisplay(direction) {
   }
 }
 
+/**
+ * Load latest videos from the API and populate the custom carousel
+ */
+function loadLatestVideos() {
+  // Show loader while fetching data
+  const carouselInner = $("#latestVideosCarousel .carousel-inner");
+  carouselInner.html(
+    '<div class="carousel-item active d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="loader"></div></div>'
+  );
+
+  // Make Ajax request to fetch latest videos
+  $.ajax({
+    url: "https://smileschool-api.hbtn.info/latest-videos",
+    method: "GET",
+    dataType: "json",
+    success: function (data) {
+      // Clear the loader
+      carouselInner.empty();
+
+      // Populate custom carousel with latest videos data
+      if (data && data.length > 0) {
+        // Store latest videos data globally for carousel navigation
+        window.latestVideos = data;
+        window.latestCurrentIndex = 0;
+
+        // Create initial carousel items
+        updateLatestVideosCarouselDisplay();
+      } else {
+        // Handle case when no videos are returned
+        carouselInner.html(`
+          <div class="carousel-item active">
+            <div class="row mx-auto align-items-center">
+              <div class="col-12 text-center">
+                <p class="text-muted">No latest videos available at the moment.</p>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+    },
+    error: function (xhr, status, error) {
+      // Handle error case
+      console.error("Error loading latest videos:", error);
+      carouselInner.html(`
+        <div class="carousel-item active">
+          <div class="row mx-auto align-items-center">
+            <div class="col-12 text-center">
+              <p class="text-muted">Error loading latest videos. Please try again later.</p>
+            </div>
+          </div>
+        </div>
+      `);
+    },
+  });
+}
+
+/**
+ * Initialize custom carousel controls for latest videos
+ */
+function initializeLatestVideosCarousel() {
+  // Next button click handler
+  $("#latestNextBtn").on("click", function (e) {
+    e.preventDefault();
+    if (window.latestVideos && window.latestVideos.length > 0) {
+      // Move to next card (circular)
+      slideLatestToNext();
+    }
+  });
+
+  // Previous button click handler
+  $("#latestPrevBtn").on("click", function (e) {
+    e.preventDefault();
+    if (window.latestVideos && window.latestVideos.length > 0) {
+      // Move to previous card (circular)
+      slideLatestToPrevious();
+    }
+  });
+}
+
+/**
+ * Slide to next card with animation for latest videos
+ */
+function slideLatestToNext() {
+  const carouselInner = $("#latestVideosCarousel .carousel-inner");
+  const currentCards = carouselInner.find(".card");
+
+  // Animate current leftmost card sliding out to the left
+  const leftmostCard = currentCards.first();
+  leftmostCard.addClass("slide-out-left");
+
+  // Move to next index
+  window.latestCurrentIndex =
+    (window.latestCurrentIndex + 1) % window.latestVideos.length;
+
+  // After animation completes, update the display
+  setTimeout(() => {
+    updateLatestVideosCarouselDisplay("from-right");
+  }, 250);
+}
+
+/**
+ * Slide to previous card with animation for latest videos
+ */
+function slideLatestToPrevious() {
+  const carouselInner = $("#latestVideosCarousel .carousel-inner");
+  const currentCards = carouselInner.find(".card");
+
+  // Animate current rightmost card sliding out to the right
+  const rightmostCard = currentCards.last();
+  rightmostCard.addClass("slide-out-right");
+
+  // Move to previous index
+  window.latestCurrentIndex =
+    (window.latestCurrentIndex - 1 + window.latestVideos.length) %
+    window.latestVideos.length;
+
+  // After animation completes, update the display
+  setTimeout(() => {
+    updateLatestVideosCarouselDisplay("from-left");
+  }, 250);
+}
+
+/**
+ * Update latest videos carousel display based on current index and screen size
+ * @param {string} direction - 'from-left', 'from-right', or undefined for initial load
+ */
+function updateLatestVideosCarouselDisplay(direction) {
+  if (!window.latestVideos || window.latestVideos.length === 0) return;
+
+  const carouselInner = $("#latestVideosCarousel .carousel-inner");
+  const videos = window.latestVideos;
+  const currentIdx = window.latestCurrentIndex;
+
+  // Determine how many cards to show based on screen size
+  let cardsToShow = 4; // Desktop: 4 cards
+  if ($(window).width() <= 576) {
+    cardsToShow = 1; // Mobile: 1 card
+  } else if ($(window).width() <= 768) {
+    cardsToShow = 2; // Tablet: 2 cards
+  } else if ($(window).width() <= 991) {
+    cardsToShow = 3; // Medium: 3 cards
+  }
+
+  // Generate cards HTML
+  let carouselHTML =
+    '<div class="carousel-item active"><div class="row align-items-center mx-auto">';
+
+  for (let i = 0; i < cardsToShow; i++) {
+    const videoIndex = (currentIdx + i) % videos.length;
+    const video = videos[videoIndex];
+
+    // Generate star rating HTML
+    let starsHTML = "";
+    for (let j = 0; j < 5; j++) {
+      if (j < video.star) {
+        starsHTML +=
+          '<img src="images/star_on.png" alt="star on" width="15px" />';
+      } else {
+        starsHTML +=
+          '<img src="images/star_off.png" alt="star off" width="15px" />';
+      }
+    }
+
+    // Determine column classes based on cards to show
+    let colClasses = "";
+    if (cardsToShow === 1) {
+      colClasses = "col-12 d-flex justify-content-center";
+    } else if (cardsToShow === 2) {
+      colClasses =
+        i === 0
+          ? "col-12 col-sm-6 d-flex justify-content-center justify-content-md-end"
+          : "col-sm-6 d-flex justify-content-md-start justify-content-center";
+    } else if (cardsToShow === 3) {
+      if (i === 0)
+        colClasses =
+          "col-12 col-sm-6 col-md-4 d-flex justify-content-center justify-content-md-end";
+      else if (i === 1)
+        colClasses = "col-sm-6 col-md-4 d-flex justify-content-center";
+      else
+        colClasses =
+          "col-md-4 d-flex justify-content-md-start justify-content-center";
+    } else {
+      if (i === 0)
+        colClasses =
+          "col-12 col-sm-6 col-md-6 col-lg-3 d-flex justify-content-center justify-content-md-end justify-content-lg-center";
+      else if (i === 1)
+        colClasses =
+          "col-sm-6 col-md-6 col-lg-3 d-none d-sm-flex justify-content-md-start justify-content-lg-center";
+      else if (i === 2)
+        colClasses = "col-md-3 d-none d-lg-flex justify-content-center";
+      else colClasses = "col-md-3 d-none d-lg-flex justify-content-center";
+    }
+
+    carouselHTML += `
+      <div class="${colClasses}">
+        <div class="card">
+          <img src="${video.thumb_url}" class="card-img-top" alt="Video thumbnail" />
+          <div class="card-img-overlay text-center">
+            <img src="images/play.png" alt="Play" width="64px"
+                class="align-self-center play-overlay" />
+          </div>
+          <div class="card-body">
+            <h5 class="card-title font-weight-bold">
+              ${video.title}
+            </h5>
+            <p class="card-text text-muted">
+              ${video["sub-title"]}
+            </p>
+            <div class="creator d-flex align-items-center">
+              <img src="${video.author_pic_url}" alt="Creator of Video" width="30px" class="rounded-circle" />
+              <h6 class="pl-3 m-0 main-color">${video.author}</h6>
+            </div>
+            <div class="info pt-3 d-flex justify-content-between">
+              <div class="rating">
+                ${starsHTML}
+              </div>
+              <span class="main-color">${video.duration}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  carouselHTML += "</div></div>";
+
+  // Update carousel with sliding animation
+  if (direction === "from-right") {
+    // New card slides in from the right
+    carouselInner.html(carouselHTML);
+    const newRightmostCard = carouselInner.find(".card").last();
+    newRightmostCard.addClass("slide-in-right");
+    setTimeout(() => {
+      newRightmostCard
+        .removeClass("slide-in-right")
+        .addClass("slide-in-active");
+    }, 50);
+  } else if (direction === "from-left") {
+    // New card slides in from the left
+    carouselInner.html(carouselHTML);
+    const newLeftmostCard = carouselInner.find(".card").first();
+    newLeftmostCard.addClass("slide-in-left");
+    setTimeout(() => {
+      newLeftmostCard.removeClass("slide-in-left").addClass("slide-in-active");
+    }, 50);
+  } else {
+    // Initial load or resize - no animation
+    carouselInner.html(carouselHTML);
+  }
+}
+
 // Handle window resize to update carousel display
 $(window).on("resize", function () {
   if (window.popularTutorials && window.popularTutorials.length > 0) {
     updateCarouselDisplay();
+  }
+  if (window.latestVideos && window.latestVideos.length > 0) {
+    updateLatestVideosCarouselDisplay();
   }
 });
