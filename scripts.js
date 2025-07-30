@@ -8,6 +8,12 @@ $(document).ready(function () {
   // Load latest videos dynamically when page loads
   loadLatestVideos();
 
+  // Load courses dynamically when page loads (if on courses page)
+  if (window.location.pathname.includes('courses.html')) {
+    loadCourses();
+    initializeCoursesFilters();
+  }
+
   // Initialize custom carousel controls
   initializeCustomCarousel();
 
@@ -602,3 +608,206 @@ $(window).on("resize", function () {
     updateLatestVideosCarouselDisplay();
   }
 });
+
+// Global variables for courses functionality
+window.coursesData = {
+  topics: [],
+  sorts: [],
+  currentQuery: '',
+  currentTopic: '',
+  currentSort: ''
+};
+
+/**
+ * Load courses from the API and populate the page
+ * @param {string} query - Search query (optional)
+ * @param {string} topic - Topic filter (optional)
+ * @param {string} sort - Sort option (optional)
+ */
+function loadCourses(query = '', topic = '', sort = '') {
+  // Show loader while fetching data
+  const resultsContainer = $('.results .row');
+  const videoCountElement = $('.video-count');
+  
+  resultsContainer.html(
+    '<div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="loader"></div></div>'
+  );
+  videoCountElement.text('Loading...');
+
+  // Build query parameters
+  const params = {};
+  if (query) params.q = query;
+  if (topic) params.topic = topic;
+  if (sort) params.sort = sort;
+
+  // Make Ajax request to fetch courses
+  $.ajax({
+    url: "https://smileschool-api.hbtn.info/courses",
+    method: "GET",
+    data: params,
+    dataType: "json",
+    success: function (data) {
+      // Store data globally for reference
+      window.coursesData.topics = data.topics || [];
+      window.coursesData.sorts = data.sorts || [];
+      window.coursesData.currentQuery = data.q || '';
+      window.coursesData.currentTopic = topic;
+      window.coursesData.currentSort = sort;
+
+      // Update dropdowns with API data
+      updateDropdowns();
+      
+      // Update search input with API value
+      $('.search-text-area').val(data.q || '');
+
+      // Clear the loader
+      resultsContainer.empty();
+
+      // Update video count
+      const videoCount = data.courses ? data.courses.length : 0;
+      videoCountElement.text(`${videoCount} video${videoCount !== 1 ? 's' : ''}`);
+
+      // Populate page with courses data
+      if (data.courses && data.courses.length > 0) {
+        data.courses.forEach(function (course) {
+          const courseCard = createCourseCard(course);
+          resultsContainer.append(courseCard);
+        });
+      } else {
+        resultsContainer.html(
+          '<div class="col-12 text-center"><p class="text-muted">No courses found.</p></div>'
+        );
+      }
+    },
+    error: function (xhr, status, error) {
+      console.error('Error loading courses:', error);
+      resultsContainer.html(
+        '<div class="col-12 text-center"><p class="text-danger">Error loading courses. Please try again.</p></div>'
+      );
+      videoCountElement.text('Error');
+    }
+  });
+}
+
+/**
+ * Create a course card HTML element
+ * @param {Object} course - Course data object
+ * @returns {string} HTML string for the course card
+ */
+function createCourseCard(course) {
+  // Generate star rating HTML
+  const stars = generateStarRating(course.star);
+  
+  return `
+    <div class="col-12 col-sm-4 col-lg-3 d-flex justify-content-center">
+      <div class="card">
+        <img src="${course.thumb_url}" class="card-img-top" alt="Video thumbnail" />
+        <div class="card-img-overlay text-center">
+          <img src="images/play.png" alt="Play" width="64px" class="align-self-center play-overlay" />
+        </div>
+        <div class="card-body">
+          <h5 class="card-title font-weight-bold">${course.title}</h5>
+          <p class="card-text text-muted">${course['sub-title']}</p>
+          <div class="creator d-flex align-items-center">
+            <img src="${course.author_pic_url}" alt="Creator of Video" width="30px" class="rounded-circle" />
+            <h6 class="pl-3 m-0 main-color">${course.author}</h6>
+          </div>
+          <div class="info pt-3 d-flex justify-content-between">
+            <div class="rating">
+              ${stars}
+            </div>
+            <span class="main-color">${course.duration}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generate star rating HTML
+ * @param {number} rating - Rating value (0-5)
+ * @returns {string} HTML string for star rating
+ */
+function generateStarRating(rating) {
+  let stars = '';
+  for (let i = 1; i <= 5; i++) {
+    if (i <= rating) {
+      stars += '<img src="images/star_on.png" alt="star on" width="15px" />';
+    } else {
+      stars += '<img src="images/star_off.png" alt="star off" width="15px" />';
+    }
+  }
+  return stars;
+}
+
+/**
+ * Update dropdowns with data from API
+ */
+function updateDropdowns() {
+  // Update topics dropdown
+  const topicsDropdown = $('.box2 .dropdown-menu');
+  topicsDropdown.empty();
+  
+  window.coursesData.topics.forEach(function(topic) {
+    topicsDropdown.append(`<a class="dropdown-item" href="#" data-value="${topic}">${topic}</a>`);
+  });
+  
+  // Update sorts dropdown
+  const sortsDropdown = $('.box3 .dropdown-menu');
+  sortsDropdown.empty();
+  
+  window.coursesData.sorts.forEach(function(sort) {
+    sortsDropdown.append(`<a class="dropdown-item" href="#" data-value="${sort}">${sort}</a>`);
+  });
+  
+  // Set initial dropdown values
+  if (window.coursesData.currentTopic) {
+    $('.box2 .dropdown-toggle span').text(window.coursesData.currentTopic);
+  }
+  if (window.coursesData.currentSort) {
+    $('.box3 .dropdown-toggle span').text(window.coursesData.currentSort);
+  }
+}
+
+/**
+ * Initialize courses filters and event handlers
+ */
+function initializeCoursesFilters() {
+  // Search input event handler with debouncing
+  let searchTimeout;
+  $('.search-text-area').on('input', function() {
+    clearTimeout(searchTimeout);
+    const query = $(this).val();
+    
+    searchTimeout = setTimeout(function() {
+      loadCourses(query, window.coursesData.currentTopic, window.coursesData.currentSort);
+    }, 500); // 500ms debounce
+  });
+  
+  // Topic dropdown event handler
+  $(document).on('click', '.box2 .dropdown-item', function(e) {
+    e.preventDefault();
+    const selectedTopic = $(this).data('value');
+    $('.box2 .dropdown-toggle span').text($(this).text());
+    
+    loadCourses(
+      $('.search-text-area').val(),
+      selectedTopic,
+      window.coursesData.currentSort
+    );
+  });
+  
+  // Sort dropdown event handler
+  $(document).on('click', '.box3 .dropdown-item', function(e) {
+    e.preventDefault();
+    const selectedSort = $(this).data('value');
+    $('.box3 .dropdown-toggle span').text($(this).text());
+    
+    loadCourses(
+      $('.search-text-area').val(),
+      window.coursesData.currentTopic,
+      selectedSort
+    );
+  });
+}

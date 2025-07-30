@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>holberton-smiling</title>
+    <!-- Custom and Font Styles  -->
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="font-style.css" />
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Coiny&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+    <script src="scripts.js"></script>
+</head>
+
+<body class="body">
+    <header class="header courses-header">
+        <div class="container">
+            <nav class="navbar navbar-expand-sm navbar-dark pt-4 px-0">
+                <button class="navbar-toggler border-0 align-self-start mt-3" type="button" data-toggle="collapse"
+                    data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-line1"></span>
+                    <span class="navbar-line2 my-1"></span>
+                    <span class="navbar-line3"></span>
+                </button>
+                <a class="navbar-brand mx-auto d-flex flex-column flex-sm-row align-items-center mt-3"
+                    href="homepage.html">
+                    <img src="images/smile_off.png" alt="navbar-logo" width="37px"
+                        class="mr-4 mb-3 mb-sm-0 mr-sm-3 img-fluid" />
+                    <img src="images/logo.png" alt="navbar-logo-text" width="114px" class="mr-4 img-fluid" />
+                </a>
+                <div class="collapse navbar-collapse text-center mt-3" id="navbarNav">
+                    <ul class="navbar-nav ml-auto font-weight-bold">
+                        <li class="nav-item">
+                            <a class="nav-link text-white px-1" href="courses.html">COURSES</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white px-1" href="pricing.html">PRICING</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white px-1" href="homepage.html">LOGIN</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <section class="hero text-center text-white">
+                <h1 class="my-0">
+                    « Don't cry because it's over.
+                    <figure class="d-inline-block ml-2 my-0">
+                        <img src="images/smile_off.png" alt="navbar-logo" class="mr-1 img-fluid smile-fig" />
+                        <figcaption class="sr-only">smile</figcaption>
+                    </figure>
+                    because it happened. »
+                </h1>
+            </section>
+        </div>
+    </header>
+    <main>
+        <section class="section search">
+            <div class="container">
+                <div class="row py-4">
+                    <div class="col-12 col-sm-12 col-lg-4 box1">
+                        <span class="text-white font-weight-bold drop-down-title">KEYWORDS</span>
+
+                        <div class="input-group mb-sm-4">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text holberton_school-icon-search_1"></span>
+                            </div>
+                            <input type="text" class="form-control search-text-area" aria-label="Default"
+                                aria-describedby="inputGroup-sizing-default" placeholder="Search by keywords" />
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-4 box2">
+                        <span class="text-white font-weight-bold drop-down-title">TOPIC</span>
+                        <div class="dropdown">
+                            <a class="btn dropdown-toggle text-left" href="#" role="button" id="dropdownMenuLink"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span>All topics</span>
+                            </a>
+
+                            <div class="dropdown-menu mt-0" aria-labelledby="dropdownMenuLink">
+                                <!-- Dynamic topics will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-4 box3">
+                        <span class="text-white font-weight-bold drop-down-title">SORT BY</span>
+                        <div class="dropdown">
+                            <a class="btn dropdown-toggle text-left" href="#" role="button" id="dropdownMenuLink"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span>Sort by</span>
+                            </a>
+
+                            <div class="dropdown-menu mt-0" aria-labelledby="dropdownMenuLink">
+                                <!-- Dynamic sorts will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section results">
+            <div class="container">
+                <div class="section-title">
+                    <span class="text-muted video-count">Loading...</span>
+                </div>
+                <div class="row">
+                    <!-- Dynamic course cards will be loaded here -->
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="footer d-flex align-items-center justify-content-center">
+        <div class="container">
+            <div class="row d-flex align-items-center flex-column flex-sm-row">
+                <div class="col footer-item d-flex justify-content-center justify-content-sm-start">
+                    <img src="images/smile_off.png" alt="footer-logo" width="37px" class="mr-4 img-fluid" />
+                    <img src="images/logo.png" alt="footer-logo-text" width="114px" class="mr-4 img-fluid" />
+                </div>
+                <div class="col footer-item">
+                    <div class="social-icons d-flex justify-content-center">
+                        <ul class="social-list d-flex">
+                            <li class="social-item facebook-icon">
+                                <a href="https://www.facebook.com/HolbertonSchool/" class="social-link"
+                                    aria-label="Facebook"><span
+                                        class="holberton_school-icon-ic_facebook"></span></a>
+                            </li>
+                            <li class="social-item twitter-icon">
+                                <a href="https://twitter.com/holbertonschool" class="social-link"
+                                    aria-label="Twitter"><span class="holberton_school-icon-ic_twitter"></span></a>
+                            </li>
+                            <li class="social-item instagram-icon">
+                                <a href="https://www.instagram.com/holbertonschool/" class="social-link"
+                                    aria-label="Instagram"><span
+                                        class="holberton_school-icon-ic_instagram"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
